@@ -24,7 +24,23 @@ def get_public_holidays(public_holidays_url: str, year: str) -> DataFrame:
     # You must convert the "date" column to datetime.
     # You must raise a SystemExit if the request fails. Research the raise_for_status
     # method from the requests library.
-    raise NotImplementedError
+    try:
+        url = f"{public_holidays_url}/{year}/BR"
+        
+        res = requests.get(url)
+        res.raise_for_status()
+        
+        df = read_json(res.text)
+        
+        # Eliminar las columnas 'columna1' y 'columna2'
+        col_to_del = ['types', 'counties']
+        df = df.drop(col_to_del, axis=1)
+        df["date"] = to_datetime(df["date"])
+        return df
+
+    except requests.exceptions.HTTPError as err:
+        print(f'Error HTTP: {err}')
+    # raise NotImplementedError
 
 
 def extract(
