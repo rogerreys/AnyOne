@@ -26,8 +26,8 @@ when "11" then "NOV"
 when "12" then "DEC"
 END AS month,
 SUM(CASE strftime('%Y', order_delivered_customer_date) WHEN '2016' THEN (rm.payment_value) ELSE 0.0  END) AS 'Year2016',
-SUM(CASE strftime('%Y', order_delivered_customer_date) WHEN '2017' THEN (rm.payment_value) ELSE 0.0     END) AS 'Year2017',
-SUM(CASE strftime('%Y', order_delivered_customer_date) WHEN '2018' THEN (rm.payment_value) ELSE 0.0      END) AS 'Year2018'
+SUM(CASE strftime('%Y', order_delivered_customer_date) WHEN '2017' THEN (rm.payment_value) ELSE 0.0  END) AS 'Year2017',
+SUM(CASE strftime('%Y', order_delivered_customer_date) WHEN '2018' THEN (rm.payment_value) ELSE 0.0  END) AS 'Year2018'
 from revenue_mon_year as rm, olist_orders   
 WHERE olist_orders.order_id = rm.order_id
 AND olist_orders.order_delivered_customer_date is not null and olist_orders.order_purchase_timestamp is NOT NULL 
