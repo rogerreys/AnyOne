@@ -223,19 +223,21 @@ def query_orders_per_day_and_holidays_2017(database: Engine) -> QueryResult:
     # Replace the content for the column `order_purchase_timestamp` in the `orders`
     # DataFrame with the same data but converted to datetime.
     # We suggest you to read about how to use pd.to_datetime() for this.
-    orders["order_purchase_timestamp"] = ...
+    orders["order_purchase_timestamp"] = pd.to_datetime(orders["order_purchase_timestamp"], format="%Y-%m-%d")
+    orders["order_purchase_timestamp"] = orders["order_purchase_timestamp"].dt.to_period('D')
 
     # TODO: Filtering only the order purchase timestamps from the year 2017.
     # Using the `orders` DataFrame, apply a boolean mask for retrieving all the
     # columns but only the rows corresponding to the year 2017.
     # Assign the result to a new variable called `filtered_dates`.
-    filtered_dates = ...
+    filtered_dates = orders[(orders["order_purchase_timestamp"].dt.year == 2017 )]
+    filtered_dates = filtered_dates[["order_purchase_timestamp", "order_id"]]
 
     # TODO: Counting the orders per day.
     # Using the `filtered_dates` DataFrame, count how many orders were made on
     # each day.
     # Assign the result to the `order_purchase_ammount_per_date` variable.
-    order_purchase_ammount_per_date = ...
+    order_purchase_ammount_per_date = filtered_dates.groupby(filtered_dates["order_purchase_timestamp"]).size().reset_index(name='count')
 
     # TODO: Creating a dataframe with the result. Assign it to `result_df` variable.
     # Now we will create the final DataFrame for the output.
@@ -245,8 +247,14 @@ def query_orders_per_day_and_holidays_2017(database: Engine) -> QueryResult:
     #   - 'date': the corresponding date for each count of orders.
     #   - 'holiday': boolean column having True when that date is a holiday or,
     #                False otherwise. Use the `holidays` DataFrame for this.
-    result_df = ...
-
+    holidays["date"] = pd.to_datetime(holidays["date"])
+    
+    holidays_bool = order_purchase_ammount_per_date["order_purchase_timestamp"].isin(holidays["date"])
+    result_df = pd.DataFrame({
+        "order_count": order_purchase_ammount_per_date["count"].values,
+        "date": order_purchase_ammount_per_date["order_purchase_timestamp"].values,
+        "holiday": holidays_bool.values
+    })
     # Keep the code below as it is, this will return the result from
     # `aggregations` variable with the corresponding name and format.
     return QueryResult(query=query_name, result=result_df)
