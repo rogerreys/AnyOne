@@ -223,8 +223,8 @@ def query_orders_per_day_and_holidays_2017(database: Engine) -> QueryResult:
     # Replace the content for the column `order_purchase_timestamp` in the `orders`
     # DataFrame with the same data but converted to datetime.
     # We suggest you to read about how to use pd.to_datetime() for this.
-    orders["order_purchase_timestamp"] = pd.to_datetime(orders["order_purchase_timestamp"], format="%Y-%m-%d")
-    orders["order_purchase_timestamp"] = orders["order_purchase_timestamp"].dt.to_period('D')
+    orders["order_purchase_timestamp"] = pd.to_datetime(orders["order_purchase_timestamp"])
+    orders["order_purchase_timestamp"] = orders["order_purchase_timestamp"].dt.normalize()
 
     # TODO: Filtering only the order purchase timestamps from the year 2017.
     # Using the `orders` DataFrame, apply a boolean mask for retrieving all the
