@@ -172,13 +172,14 @@ def query_freight_value_weight_relationship(database: Engine) -> QueryResult:
     # TODO: Merge items, orders and products tables on 'order_id'/'product_id'.
     # We suggest to use pandas.merge() function.
     # Assign the result to the `data` variable.
-    data = ...
+    pre_data = pd.merge(orders, items, on="order_id", how="left", suffixes=("_o", "_i"))
+    data = pd.merge(pre_data, products, on="product_id", how="left", suffixes=("_i", "_p"))
 
     # TODO: Get only delivered orders.
     # Using the previous results from the merge (stored in `data` variable),
     # apply a boolean mask to keep only the 'delivered' orders.
     # Assign the result to the variable `delivered`.
-    delivered = ...
+    delivered = data[data["order_status"] == "delivered"]
 
     # TODO: Get the sum of freight_value and product_weight_g for each order_id.
     # The same order (identified by 'order_id') can have multiple products inside,
@@ -188,11 +189,16 @@ def query_freight_value_weight_relationship(database: Engine) -> QueryResult:
     # look at pandas.DataFrame.groupby() and pandas.DataFrame.agg() for the data
     # transformation.
     # Store the result in the `aggregations` variable.
-    aggregations = ...
+    aggregations = delivered.groupby("order_id").agg({"freight_value":['sum'], "product_weight_g":['sum']}).reset_index()
+    new_Df = pd.DataFrame({
+        "order_id": aggregations["order_id"].values,
+        "freight_value": aggregations[('freight_value','sum')].values,
+        "product_weight_g": aggregations[('product_weight_g','sum')].values
+    })
 
     # Keep the code below as it is, this will return the result from
     # `aggregations` variable with the corresponding name and format.
-    return QueryResult(query=query_name, result=aggregations)
+    return QueryResult(query=query_name, result=new_Df)
 
 
 def query_orders_per_day_and_holidays_2017(database: Engine) -> QueryResult:
