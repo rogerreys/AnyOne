@@ -181,7 +181,8 @@ def plot_freight_value_weight_relationship(df: DataFrame):
     """
     # TODO: plot freight value weight relationship using seaborn scatterplot.
     # Your x-axis should be weight and, y-axis freight value.
-    raise NotImplementedError
+    plt.scatter(df["product_weight_g"], df["freight_value"], 'o')
+    plt.show()
 
 
 def plot_delivery_date_difference(df: DataFrame):
@@ -204,4 +205,20 @@ def plot_order_amount_per_day_with_holidays(df: DataFrame):
     # TODO: plot order amount per day with holidays using matplotlib.
     # Mark holidays with vertical lines.
     # Hint: use plt.axvline.
-    raise NotImplementedError
+    order_count = df["order_count"]
+    dates = df["date"]
+
+    # Obtener los índices de las filas que corresponden a días feriados
+    holidays_indices = df[df["holiday"] == True].index
+
+    # Crear el gráfico de barras
+    plt.plot(dates, order_count, label="Order Count")
+
+    # Resaltar los días feriados en el gráfico
+    for index in holidays_indices:
+        plt.axvline(x=dates[index], color='red', linestyle='--')
+
+    # Añadir título y etiquetas de ejes
+    plt.title('Order Count Over Time')
+    plt.xlabel('Date')
+    plt.ylabel('Order Count')
